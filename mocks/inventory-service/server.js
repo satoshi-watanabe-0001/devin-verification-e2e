@@ -3,17 +3,25 @@ const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 
 const schema = buildSchema(`
-  type AvailabilityInfo {
-    inStock: Boolean!
+  type ProductAvailability {
+    onlineStock: String!
+    deliveryLeadTime: String
+    inStock: Boolean
     estimatedDeliveryDays: Int
   }
 
   type Query {
-    getProductAvailability(productId: String!): AvailabilityInfo
+    productAvailability(productId: String!): ProductAvailability
+    getProductAvailability(productId: String!): ProductAvailability
   }
 `);
 
 const mockInventoryData = {
+  'iphone-14': { inStock: true, estimatedDeliveryDays: 2 },
+  'iphone-15': { inStock: true, estimatedDeliveryDays: 1 },
+  'iphone-15-plus': { inStock: true, estimatedDeliveryDays: 2 },
+  'iphone-15-pro': { inStock: true, estimatedDeliveryDays: 3 },
+  'iphone-15-pro-max': { inStock: false, estimatedDeliveryDays: null },
   'iphone-15-pro-128gb': { inStock: true, estimatedDeliveryDays: 3 },
   'iphone-15-pro-256gb': { inStock: true, estimatedDeliveryDays: 2 },
   'iphone-15-pro-max-256gb': { inStock: false, estimatedDeliveryDays: null },
@@ -21,24 +29,35 @@ const mockInventoryData = {
   'iphone-15-plus-256gb': { inStock: true, estimatedDeliveryDays: 2 },
 };
 
+const toAvailability = ({ inStock, estimatedDeliveryDays }) => ({
+  onlineStock: inStock ? 'IN_STOCK' : 'OUT_OF_STOCK',
+  deliveryLeadTime: estimatedDeliveryDays != null ? String(estimatedDeliveryDays) : null,
+  inStock,
+  estimatedDeliveryDays
+});
+
+const resolveAvailability = (productId) => {
+  console.log(`[Inventory Mock] Query for productId: ${productId}`);
+  
+  const shouldSimulateFailure = process.env.SIMULATE_FAILURE === 'true';
+  if (shouldSimulateFailure) {
+    console.log('[Inventory Mock] Simulating service failure');
+    throw new Error('Inventory service unavailable');
+  }
+
+  const base = mockInventoryData[productId] || {
+    inStock: true,
+    estimatedDeliveryDays: 5,
+  };
+
+  const result = toAvailability(base);
+  console.log(`[Inventory Mock] Returning availability:`, result);
+  return result;
+};
+
 const root = {
-  getProductAvailability: ({ productId }) => {
-    console.log(`[Inventory Mock] Query for productId: ${productId}`);
-    
-    const shouldSimulateFailure = process.env.SIMULATE_FAILURE === 'true';
-    if (shouldSimulateFailure) {
-      console.log('[Inventory Mock] Simulating service failure');
-      throw new Error('Inventory service unavailable');
-    }
-
-    const availability = mockInventoryData[productId] || {
-      inStock: true,
-      estimatedDeliveryDays: 5,
-    };
-
-    console.log(`[Inventory Mock] Returning availability:`, availability);
-    return availability;
-  },
+  productAvailability: ({ productId }) => resolveAvailability(productId),
+  getProductAvailability: ({ productId }) => resolveAvailability(productId),
 };
 
 const app = express();
