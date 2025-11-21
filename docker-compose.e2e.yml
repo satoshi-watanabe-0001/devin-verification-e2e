@@ -32,7 +32,7 @@ services:
       - DB_NAME=${DB_NAME:-ahamo_category_db}
       - DB_USERNAME=${DB_USERNAME:-ahamo_user}
       - DB_PASSWORD=${DB_PASSWORD:-ahamo_password}
-      - INVENTORY_SERVICE_URL=http://inventory-mock:8085/graphql
+      - INVENTORY_SERVICE_GRAPHQL_URL=http://inventory-mock:8085/graphql
     depends_on:
       postgres:
         condition: service_healthy
