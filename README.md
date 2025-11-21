@@ -230,9 +230,9 @@ docker-compose -f docker-compose.e2e.yml restart backend
 
 ## 注意事項
 
-- バックエンドリポジトリ（`devin-verification-backend-category-service`）が存在しない場合、バックエンドサービスは起動できません
 - フロントエンドのDockerfileは `output: 'standalone'` モードを使用しています
-- 初回起動時はイメージのビルドに時間がかかります
+- 初回起動時はイメージのビルドに時間がかかります（特にバックエンドのGradleビルド）
+- バックエンドサービスはFlywayによるデータベースマイグレーションを自動実行します
 
 ## 関連リポジトリ
 
