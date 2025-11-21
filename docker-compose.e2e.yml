@@ -5,11 +5,22 @@ services:
     build:
       context: ../devin-verification-frontend
       dockerfile: Dockerfile
+<<<<<<< HEAD
+||||||| parent of 8179c55 (feat(DEVIN-30): NEXT_PUBLIC_USE_MOCKに環境変数名を変更)
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://backend:8080
+        - USE_MOCK=false
+=======
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://backend:8080
+        - NEXT_PUBLIC_USE_MOCK=false
+>>>>>>> 8179c55 (feat(DEVIN-30): NEXT_PUBLIC_USE_MOCKに環境変数名を変更)
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_BASE_URL=http://backend:8080
+      - NEXT_PUBLIC_USE_MOCK=false
     depends_on:
       - backend
     networks:
