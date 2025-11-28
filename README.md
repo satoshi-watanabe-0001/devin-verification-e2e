@@ -199,7 +199,112 @@ docker-compose -f docker-compose.e2e.yml restart backend
 
 ### E2Eテスト実行
 
-（今後実装予定）
+#### 前提条件
+
+- Node.js 20以上がインストールされていること
+- pnpmがインストールされていること（`npm install -g pnpm`）
+- Docker Compose環境が起動していること
+
+#### セットアップ
+
+1. 依存関係をインストール：
+
+```bash
+pnpm install
+```
+
+2. Playwrightブラウザをインストール：
+
+```bash
+pnpm run playwright:install
+```
+
+#### テスト実行手順
+
+1. Docker Compose環境を起動：
+
+```bash
+docker-compose -f docker-compose.e2e.yml up -d
+```
+
+2. 全サービスが起動するまで待機（約1-2分）：
+
+```bash
+# ヘルスチェック確認
+docker-compose -f docker-compose.e2e.yml ps
+```
+
+3. E2Eテストを実行：
+
+```bash
+# 全テストを実行
+pnpm run test:e2e
+
+# UIモードで実行（デバッグに便利）
+pnpm run test:e2e:ui
+
+# ヘッドレスモードで実行
+pnpm run test:e2e:headed
+
+# デバッグモードで実行
+pnpm run test:e2e:debug
+```
+
+4. テストレポートを確認：
+
+```bash
+pnpm run test:e2e:report
+```
+
+#### テストスイート
+
+**iPhoneカテゴリページ統合テスト** (`tests/e2e/product-category/iphone-integration.spec.ts`)
+
+以下のシナリオをテストします：
+
+1. **基本的なカテゴリページ表示**: ページタイトル、説明、背景色、data-source属性の確認
+2. **APIとUI間の製品データ整合性**: バックエンドAPIから取得した5件の製品データがUIに正しく表示されることを確認
+3. **フィルタリング機能**: 並び替え機能が動作することを確認
+4. **キャンペーン表示ロジック**: キャンペーンバナーとキャンペーン価格の表示を確認
+5. **在庫ステータス処理**: 在庫モックサービスからの情報が表示されることを確認
+6. **外部リンク検証**: ドコモオンラインショップへのリンクが正しく設定されていることを確認
+7. **APIレスポンスタイム**: ページの読み込みが10秒以内に完了することを確認
+8. **エラーハンドリング**: バックエンドAPIが正常に動作していることを確認
+9. **レスポンシブデザイン**: デスクトップ、タブレット、モバイル表示で正しく表示されることを確認
+
+#### トラブルシューティング
+
+##### テストがタイムアウトする
+
+Docker Compose環境が完全に起動していない可能性があります。以下を確認してください：
+
+```bash
+# 全サービスのステータス確認
+docker-compose -f docker-compose.e2e.yml ps
+
+# フロントエンドのログ確認
+docker-compose -f docker-compose.e2e.yml logs frontend
+
+# バックエンドのログ確認
+docker-compose -f docker-compose.e2e.yml logs backend
+```
+
+##### テストが失敗する
+
+1. Docker Compose環境を再起動：
+
+```bash
+docker-compose -f docker-compose.e2e.yml down
+docker-compose -f docker-compose.e2e.yml up -d
+```
+
+2. ブラウザキャッシュをクリア：
+
+```bash
+rm -rf playwright-report test-results
+```
+
+3. テストを再実行
 
 ## 環境変数
 
