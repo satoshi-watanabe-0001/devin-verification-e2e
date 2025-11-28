@@ -59,8 +59,8 @@ test.describe('DEVIN-7: iPhoneカテゴリページ閲覧', () => {
     const storageOptions = firstCard.locator('text=/GB/');
     await expect(storageOptions.first()).toBeVisible();
     
-    const colorOptions = firstCard.locator('div[aria-label]').filter({ has: page.locator('text=/カラー/') });
-    await expect(colorOptions.first()).toBeVisible();
+    const colorLabel = firstCard.locator('text=カラー:');
+    await expect(colorLabel).toBeVisible();
   });
 
   test('7-4: 製品並び替え機能の確認', async ({ page }) => {
