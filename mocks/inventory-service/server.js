@@ -27,6 +27,11 @@ const mockInventoryData = {
   'iphone-15-pro-max-256gb': { inStock: false, estimatedDeliveryDays: null },
   'iphone-15-128gb': { inStock: true, estimatedDeliveryDays: 1 },
   'iphone-15-plus-256gb': { inStock: true, estimatedDeliveryDays: 2 },
+  'galaxy-s24-ultra': { inStock: true, estimatedDeliveryDays: 3 },
+  'galaxy-s24': { inStock: true, estimatedDeliveryDays: 2 },
+  'xperia-1-vi': { inStock: true, estimatedDeliveryDays: 4 },
+  'pixel-8-pro': { inStock: false, estimatedDeliveryDays: null },
+  'aquos-r8-pro': { inStock: true, estimatedDeliveryDays: 5 },
 };
 
 const toAvailability = ({ inStock, estimatedDeliveryDays }) => ({
