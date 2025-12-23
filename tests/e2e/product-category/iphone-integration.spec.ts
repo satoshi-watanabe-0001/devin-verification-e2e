@@ -110,8 +110,8 @@ test.describe('DEVIN-7: iPhoneカテゴリページ閲覧', () => {
     const main = page.locator('main');
     await expect(main).toHaveClass(/from-green-100/);
 
-    const comingSoon = page.locator('text=製品一覧は準備中です');
-    await expect(comingSoon).toBeVisible();
+    const productCount = page.locator('text=/件の製品が見つかりました/');
+    await expect(productCount).toBeVisible();
   });
 
   test('7-7: ドコモ認定リユース品ページの表示確認', async ({ page }) => {
