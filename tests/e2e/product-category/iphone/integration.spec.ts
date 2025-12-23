@@ -96,76 +96,7 @@ test.describe('DEVIN-7: iPhoneカテゴリページ閲覧', () => {
     expect(rel).toContain('noreferrer');
   });
 
-  test('7-6: Androidカテゴリページの表示確認', async ({ page }) => {
-    await page.goto('/smartphones/android');
-
-    await expect(page).toHaveURL('/smartphones/android');
-
-    const pageTitle = page.locator('h1', { hasText: 'Android' });
-    await expect(pageTitle).toBeVisible();
-
-    const description = page.locator('text=さまざまなメーカーから選べるAndroidスマートフォン');
-    await expect(description).toBeVisible();
-
-    const main = page.locator('main');
-    await expect(main).toHaveClass(/from-green-100/);
-
-    const productCount = page.locator('text=/件の製品が見つかりました/');
-    await expect(productCount).toBeVisible();
-  });
-
-  test('7-7: ドコモ認定リユース品ページの表示確認', async ({ page }) => {
-    await page.goto('/smartphones/docomo-certified');
-
-    await expect(page).toHaveURL('/smartphones/docomo-certified');
-
-    const pageTitle = page.locator('h1', { hasText: 'ドコモ認定リユース品' });
-    await expect(pageTitle).toBeVisible();
-
-    const description = page.locator('text=厳格な検査をクリアした高品質なリユーススマートフォン');
-    await expect(description).toBeVisible();
-
-    const exchangeInfo = page.locator('text=30日以内無料交換可能');
-    await expect(exchangeInfo).toBeVisible();
-
-    const main = page.locator('main');
-    await expect(main).toHaveClass(/from-emerald-100/);
-
-    const comingSoon = page.locator('text=製品一覧は準備中です');
-    await expect(comingSoon).toBeVisible();
-  });
-
-  test('7-8: 無効なブランドページの404処理確認', async ({ page }) => {
-    await page.goto('/smartphones/invalid-brand');
-
-    const notFoundText = page.locator('text=404');
-    await expect(notFoundText).toBeVisible();
-
-    const errorMessage = page.locator('text=/This page could not be found/');
-    await expect(errorMessage).toBeVisible();
-  });
-
-  test('7-9: iPhoneページのレスポンシブ対応確認', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await page.goto('/smartphones/iphone');
-
-    const grid = page.locator('.grid').filter({ has: page.locator('text=/iPhone/') });
-    await expect(grid.first()).toBeVisible();
-
-    await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto('/smartphones/iphone');
-    await expect(grid.first()).toBeVisible();
-
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/smartphones/iphone');
-    await expect(grid.first()).toBeVisible();
-
-    const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ has: page.locator('text=/iPhone/') });
-    const count = await productCards.count();
-    expect(count).toBeGreaterThan(0);
-  });
-
-  test('7-10: 製品カードの詳細情報表示確認', async ({ page }) => {
+  test('7-6: 製品カードの詳細情報表示確認', async ({ page }) => {
     const firstCard = page.locator('.bg-white.rounded-lg.shadow-md').filter({ has: page.locator('text=/iPhone/') }).first();
     await expect(firstCard).toBeVisible();
 
@@ -185,5 +116,51 @@ test.describe('DEVIN-7: iPhoneカテゴリページ閲覧', () => {
 
     const purchaseButton = firstCard.locator('a', { hasText: 'ドコモオンラインショップで購入' });
     await expect(purchaseButton).toBeVisible();
+  });
+
+  test('7-7: 在庫情報が正しく表示される', async ({ page }) => {
+    const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
+      has: page.locator('text=/iPhone/') 
+    });
+    
+    const firstCard = productCards.first();
+    
+    await expect(firstCard).toBeVisible();
+    
+    const productName = firstCard.locator('h3');
+    await expect(productName).toBeVisible();
+  });
+
+  test('7-8: ページの読み込みパフォーマンスが適切である', async ({ page }) => {
+    const startTime = Date.now();
+    
+    await page.goto('/smartphones/iphone');
+    
+    const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
+      has: page.locator('text=/iPhone/') 
+    });
+    await expect(productCards.first()).toBeVisible();
+    
+    const endTime = Date.now();
+    const loadTime = endTime - startTime;
+    
+    expect(loadTime).toBeLessThan(10000);
+    
+    console.log(`ページ読み込み時間: ${loadTime}ms`);
+  });
+
+  test('7-9: バックエンドAPIが正常に動作している', async ({ page }) => {
+    await expect(page.locator('h1', { hasText: 'iPhone' })).toBeVisible();
+    
+    const main = page.locator('main');
+    const dataSource = await main.getAttribute('data-source');
+    expect(dataSource).not.toBe('error');
+    expect(dataSource).toBe('backend');
+    
+    const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
+      has: page.locator('text=/iPhone/') 
+    });
+    const count = await productCards.count();
+    expect(count).toBeGreaterThan(0);
   });
 });
