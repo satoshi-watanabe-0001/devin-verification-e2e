@@ -84,4 +84,46 @@ test.describe('統合シナリオ1: エンドツーエンドユーザージャ�
     const socialLinks = footer.locator('a[aria-label*="LINE"], a[aria-label*="Facebook"], a[aria-label*="Instagram"], a[aria-label*="TikTok"], a[aria-label*="YouTube"]');
     await expect(socialLinks).toHaveCount(5);
   });
+  
+  test('ユーザーがトップページからAndroid製品詳細、購入リンクまで到達できる', async ({ page }) => {
+    await page.goto('/');
+    
+    const header = page.locator('header');
+    await expect(header).toBeVisible();
+    
+    await page.click('header a[href="/smartphones"]');
+    
+    await expect(page).toHaveURL('/smartphones');
+    
+    const categoryCards = page.locator('a[aria-label*="ページへ移動"]');
+    await expect(categoryCards).toHaveCount(4);
+    
+    await page.click('a[href="/smartphones/android"]');
+    
+    await expect(page).toHaveURL('/smartphones/android');
+    
+    const androidCampaignBanner = page.locator('text=Android').first();
+    await expect(androidCampaignBanner).toBeVisible();
+    
+    const productCards = page.locator('div').filter({ hasText: /Galaxy|Xperia|Pixel|AQUOS/ }).filter({ hasText: /円/ });
+    await expect(productCards.first()).toBeVisible();
+    
+    const galaxyProduct = page.locator('text=Galaxy').first();
+    if (await galaxyProduct.isVisible()) {
+      const priceInfo = page.locator('text=/円/');
+      await expect(priceInfo.first()).toBeVisible();
+    }
+    
+    const purchaseButton = page.locator('a[href*="onlineshop.smt.docomo.ne.jp"]').first();
+    await expect(purchaseButton).toBeVisible();
+    
+    const targetBlank = await purchaseButton.getAttribute('target');
+    expect(targetBlank).toBe('_blank');
+    
+    const footer = page.locator('footer');
+    await footer.scrollIntoViewIfNeeded();
+    
+    await expect(footer).toBeVisible();
+    await expect(footer).toContainText('© NTT DOCOMO, INC.');
+  });
 });

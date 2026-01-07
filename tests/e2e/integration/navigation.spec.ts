@@ -124,7 +124,7 @@ test.describe('統合シナリオ3: ナビゲーションの一貫性確認', ()
   });
   
   test('複数ページでフッターが一貫して表示される', async ({ page }) => {
-    const pages = ['/', '/smartphones', '/smartphones/iphone'];
+    const pages = ['/', '/smartphones', '/smartphones/iphone', '/smartphones/android'];
     
     for (const pagePath of pages) {
       await page.goto(pagePath);
@@ -151,13 +151,18 @@ test.describe('統合シナリオ3: ナビゲーションの一貫性確認', ()
     await expect(smartphonesLink).toBeVisible();
     
     await page.goto('/smartphones/iphone');
-    const header = page.locator('header');
+    let header = page.locator('header');
+    await expect(header).toBeVisible();
+    await expect(smartphonesLink).toBeVisible();
+    
+    await page.goto('/smartphones/android');
+    header = page.locator('header');
     await expect(header).toBeVisible();
     await expect(smartphonesLink).toBeVisible();
   });
   
   test('ahamoロゴが全てのページでトップページへのリンクとして機能する', async ({ page }) => {
-    const pages = ['/smartphones', '/smartphones/iphone'];
+    const pages = ['/smartphones', '/smartphones/iphone', '/smartphones/android'];
     
     for (const pagePath of pages) {
       await page.goto(pagePath);

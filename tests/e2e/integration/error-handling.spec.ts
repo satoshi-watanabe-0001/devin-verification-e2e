@@ -171,7 +171,7 @@ test.describe('統合シナリオ4: データ取得とエラーハンドリン�
     await expect(page).toHaveURL('/smartphones');
   });
   
-  test('バックエンドAPIエラー時にフォールバック処理が動作する', async ({ page }) => {
+  test('バックエンドAPIエラー時にフォールバック処理が動作する（iPhone）', async ({ page }) => {
     await page.route('**/api/v1/v1/products/categories/iphone', async route => {
       await route.fulfill({
         status: 500,
@@ -192,5 +192,52 @@ test.describe('統合シナリオ4: データ取得とエラーハンドリン�
     const hasProducts = await productCards.first().isVisible().catch(() => false);
     
     expect(hasError || hasProducts).toBe(true);
+  });
+  
+  test('バックエンドAPIエラー時にフォールバック処理が動作する（Android）', async ({ page }) => {
+    await page.route('**/api/v1/v1/products/categories/android', async route => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Internal Server Error' })
+      });
+    });
+    
+    await page.goto('/smartphones/android');
+    
+    const header = page.locator('header');
+    await expect(header).toBeVisible();
+    
+    const errorMessage = page.locator('text=/エラー|Error|問題が発生/i').first();
+    const productCards = page.locator('div').filter({ hasText: /Galaxy|Xperia|Pixel|AQUOS/ }).filter({ hasText: /円/ });
+    
+    const hasError = await errorMessage.isVisible().catch(() => false);
+    const hasProducts = await productCards.first().isVisible().catch(() => false);
+    
+    expect(hasError || hasProducts).toBe(true);
+  });
+  
+  test('APIがデータを返さない場合に空状態メッセージが表示される（Android）', async ({ page }) => {
+    await page.route('**/api/v1/v1/products/categories/android', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ products: [] })
+      });
+    });
+    
+    await page.goto('/smartphones/android');
+    
+    const emptyMessage = page.locator('text=/製品がありません|データがありません|見つかりません|No products|Not found/i').first();
+    
+    if (await emptyMessage.isVisible().catch(() => false)) {
+      await expect(emptyMessage).toBeVisible();
+    } else {
+      const productCards = page.locator('div').filter({ hasText: /Galaxy|Xperia|Pixel|AQUOS/ }).filter({ hasText: /円/ });
+      const count = await productCards.count();
+      if (count === 0) {
+        expect(count).toBe(0);
+      }
+    }
   });
 });

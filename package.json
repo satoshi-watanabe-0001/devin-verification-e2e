@@ -9,6 +9,9 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:iphone": "playwright test tests/e2e/product-category/iphone/",
+    "test:e2e:android": "playwright test tests/e2e/product-category/android/",
+    "test:e2e:integration": "playwright test tests/e2e/integration/",
     "test:e2e:report": "playwright show-report",
     "playwright:install": "playwright install --with-deps"
   },
