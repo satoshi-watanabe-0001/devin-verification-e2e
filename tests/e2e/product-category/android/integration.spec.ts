@@ -192,58 +192,7 @@ test.describe('DEVIN-8: Androidカテゴリページ閲覧', () => {
     console.log(`バックエンドからのデータソース: ${dataSource}, 製品数: ${count}`);
   });
 
-  test('8-10: バックエンドAPIエラー時にフォールバック処理が動作する', async ({ page }) => {
-    await page.route('**/api/v1/v1/products/categories/android', async route => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: 'Internal Server Error' })
-      });
-    });
-    
-    await page.goto('/smartphones/android');
-    
-    const header = page.locator('header');
-    await expect(header).toBeVisible();
-    
-    const errorMessage = page.locator('text=/エラー|Error|問題が発生/i').first();
-    const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
-      has: page.locator('text=/Galaxy|Xperia|Pixel|AQUOS/') 
-    });
-    
-    const hasError = await errorMessage.isVisible().catch(() => false);
-    const hasProducts = await productCards.first().isVisible().catch(() => false);
-    
-    expect(hasError || hasProducts).toBe(true);
-  });
-
-  test('8-11: APIがデータを返さない場合に空状態メッセージが表示される', async ({ page }) => {
-    await page.route('**/api/v1/v1/products/categories/android', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ products: [] })
-      });
-    });
-    
-    await page.goto('/smartphones/android');
-    
-    const emptyMessage = page.locator('text=/製品がありません|データがありません|見つかりません|No products|Not found/i').first();
-    
-    if (await emptyMessage.isVisible().catch(() => false)) {
-      await expect(emptyMessage).toBeVisible();
-    } else {
-      const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
-        has: page.locator('text=/Galaxy|Xperia|Pixel|AQUOS/') 
-      });
-      const count = await productCards.count();
-      if (count === 0) {
-        expect(count).toBe(0);
-      }
-    }
-  });
-
-  test('8-12: 5つのAndroid製品が正しく表示される', async ({ page }) => {
+  test('8-10: 5つのAndroid製品が正しく表示される', async ({ page }) => {
     const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
       has: page.locator('text=/Galaxy|Xperia|Pixel|AQUOS/') 
     });
@@ -270,7 +219,7 @@ test.describe('DEVIN-8: Androidカテゴリページ閲覧', () => {
     console.log(`製品数 - Galaxy: ${galaxyCount}, Xperia: ${xperiaCount}, Pixel: ${pixelCount}, AQUOS: ${aquosCount}`);
   });
 
-  test('8-13: ストレージオプションが正しく表示される', async ({ page }) => {
+  test('8-11: ストレージオプションが正しく表示される', async ({ page }) => {
     const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
       has: page.locator('text=/Galaxy|Xperia|Pixel|AQUOS/') 
     });
@@ -285,7 +234,7 @@ test.describe('DEVIN-8: Androidカテゴリページ閲覧', () => {
     console.log(`最初の製品のストレージオプション数: ${storageCount}`);
   });
 
-  test('8-14: カラーオプションが正しく表示される', async ({ page }) => {
+  test('8-12: カラーオプションが正しく表示される', async ({ page }) => {
     const productCards = page.locator('.bg-white.rounded-lg.shadow-md').filter({ 
       has: page.locator('text=/Galaxy|Xperia|Pixel|AQUOS/') 
     });

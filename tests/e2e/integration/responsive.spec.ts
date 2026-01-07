@@ -143,6 +143,28 @@ test.describe('統合シナリオ2: レスポンシブデザインの一貫性�
     await expect(productCards.first()).toBeVisible();
   });
   
+  test('Androidカテゴリページの製品グリッドがレスポンシブに表示される', async ({ page }) => {
+    await page.goto('/smartphones/android');
+    
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.reload();
+    
+    const productCards = page.locator('div').filter({ hasText: /Galaxy|Xperia|Pixel|AQUOS/ }).filter({ hasText: /円/ });
+    await expect(productCards.first()).toBeVisible();
+    
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.reload();
+    await expect(productCards.first()).toBeVisible();
+    
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.reload();
+    await expect(productCards.first()).toBeVisible();
+    
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.reload();
+    await expect(productCards.first()).toBeVisible();
+  });
+  
   test('全てのページでレイアウトが崩れない', async ({ page }) => {
     const viewports = [
       { width: 375, height: 667, name: 'モバイル' },
@@ -150,7 +172,7 @@ test.describe('統合シナリオ2: レスポンシブデザインの一貫性�
       { width: 1280, height: 720, name: 'デスクトップ' }
     ];
     
-    const pages = ['/', '/smartphones', '/smartphones/iphone'];
+    const pages = ['/', '/smartphones', '/smartphones/iphone', '/smartphones/android'];
     
     for (const viewport of viewports) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
